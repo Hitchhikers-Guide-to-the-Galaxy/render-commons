@@ -59,7 +59,7 @@ def compile_(a):
         if not validate(f): raise SystemExit("patch invalid; refusing to compile")
     cmd = [BLENDER, "-b", "--python", str(HERE / "compile_world.py"), "--",
            "--world", str(WORLD), "--patch", ",".join(str(p) for p in patches), "--seed", str(a.seed), "--out", str(out),
-           "--res", a.res, "--samples", str(a.samples), "--rights", str(FIXTURES / a.rights), "--camera", a.camera] + (["--shot", str(FIXTURES / a.shot)] if a.shot else [])
+           "--res", a.res, "--samples", str(a.samples), "--rights", str(FIXTURES / a.rights), "--camera", a.camera, "--rung", a.rung] + (["--shot", str(FIXTURES / a.shot)] if a.shot else []) + (["--grid", "1"] if a.grid else [])
     if a.still: cmd += ["--still", str(a.still)]
     if a.journey: cmd += ["--journey", str(a.journey)]
     t0 = time.time()
@@ -85,6 +85,21 @@ def sheet(a):
         x = pad + i * (w + pad); sheet_.paste(im, (x, pad))
         d.text((x + 6, pad + h + 6), f"seed {s[0]} · frame {s[1]} · {w}x{h}", fill=(230, 230, 230), font=font)
     name = out / (f"contact-sheet-f{a.frame:03d}.png" if not a.frames else "contact-sheet-beats.png"); sheet_.save(name); print("wrote", name)
+
+def grid(a):
+    from PIL import Image, ImageDraw, ImageFont
+    out = Path(a.out); pad = 10; label = 30
+    tiles = {(j, s): Image.open(out / f"still-{j}-seed{s}-f{a.frame:03d}.png").convert("RGB") for j in a.journeys for s in a.seeds}
+    w, h = next(iter(tiles.values())).size; sw = w // 2; sh = h // 2
+    g = Image.new("RGB", (sw * len(a.seeds) + pad * (len(a.seeds) + 1) + 90, (sh + label) * len(a.journeys) + pad * (len(a.journeys) + 1) + label), (24, 24, 24))
+    d = ImageDraw.Draw(g)
+    try: font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 18)
+    except Exception: font = ImageFont.load_default()
+    for si, s in enumerate(a.seeds): d.text((90 + pad + si * (sw + pad) + 6, 6), f"seed {s}", fill=(230, 230, 230), font=font)
+    for ji, j in enumerate(a.journeys):
+        y = label + pad + ji * (sh + label + pad); d.text((8, y + sh // 2), j, fill=(230, 230, 230), font=font)
+        for si, s in enumerate(a.seeds): g.paste(tiles[(j, s)].resize((sw, sh)), (90 + pad + si * (sw + pad), y))
+    name = out / "contact-grid.png"; g.save(name); print("wrote", name)
 
 def capsule(a):
     out = Path(a.out); man = json.load(open(out / f"scene-manifest-seed{a.seed}.json"))
@@ -158,15 +173,16 @@ def main():
     c = sub.add_parser("compile"); c.add_argument("--seed", type=int, default=42); c.add_argument("--still", type=int)
     c.add_argument("--journey", type=int); c.add_argument("--res", default="960x540"); c.add_argument("--samples", type=int, default=16)
     c.add_argument("--out", default=str(HERE / "out")); c.add_argument("--patches", nargs="*", help="fixture patch files, applied in order")
-    c.add_argument("--rights", default="rights-earth2-fixture-001.json"); c.add_argument("--camera", default="journey"); c.add_argument("--shot", help="fixture shot plan file")
+    c.add_argument("--rights", default="rights-earth2-fixture-001.json"); c.add_argument("--camera", default="journey"); c.add_argument("--shot", help="fixture shot plan file"); c.add_argument("--rung", default="lit", choices=["lit", "atmosphere", "flowlike"]); c.add_argument("--grid", action="store_true", help="name the still after its journey for the contact grid")
     s = sub.add_parser("sheet"); s.add_argument("--out", default=str(HERE / "out")); s.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44]); s.add_argument("--frame", type=int, default=120); s.add_argument("--frames", type=int, nargs="*", help="beat frames of one seed")
     k = sub.add_parser("capsule"); k.add_argument("--out", default=str(HERE / "out")); k.add_argument("--seed", type=int, default=42); k.add_argument("--frames", type=int, nargs=2, default=[1, 240]); k.add_argument("--rights", default="rights-earth2-fixture-001.json"); k.add_argument("--dispatch", default="private", choices=["private", "trusted"]); k.add_argument("--job")
     h = sub.add_parser("hash-world"); h.add_argument("--patches", nargs="*", default=[])
     r = sub.add_parser("receipt"); r.add_argument("--out", default=str(HERE / "out")); r.add_argument("--seed", type=int, default=42); r.add_argument("--timing", required=True); r.add_argument("--capsule", required=True)
+    gr = sub.add_parser("grid"); gr.add_argument("--out", default=str(HERE / "out")); gr.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44]); gr.add_argument("--journeys", nargs="+", default=["journey", "high", "town"]); gr.add_argument("--frame", type=int, default=120)
     w = sub.add_parser("verify"); w.add_argument("receipt"); w.add_argument("--out", default=str(HERE / "out"))
     a = ap.parse_args()
     {"validate": lambda: validate(a.file, a.schema), "compile": lambda: compile_(a), "sheet": lambda: sheet(a),
-     "capsule": lambda: capsule(a), "receipt": lambda: receipt(a), "verify": lambda: verify(a), "hash-world": lambda: hash_world(a)}[a.cmd]()
+     "capsule": lambda: capsule(a), "receipt": lambda: receipt(a), "verify": lambda: verify(a), "hash-world": lambda: hash_world(a), "grid": lambda: grid(a)}[a.cmd]()
 
 if __name__ == "__main__":
     main()

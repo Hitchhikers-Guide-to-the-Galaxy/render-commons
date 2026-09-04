@@ -22,7 +22,7 @@ def arg(name, default=None):
 WORLD = arg("--world"); PATCH = arg("--patch"); OUT = arg("--out")
 SEED = int(arg("--seed", 42)); RES = tuple(int(x) for x in arg("--res", "960x540").split("x"))
 SAMPLES = int(arg("--samples", 16)); STILL = arg("--still"); JOURNEY = arg("--journey")
-RIGHTS = arg("--rights"); CAMERA = arg("--camera", "journey"); SHOT = arg("--shot")
+RIGHTS = arg("--rights"); CAMERA = arg("--camera", "journey"); SHOT = arg("--shot"); RUNG = arg("--rung", "lit")
 os.makedirs(OUT, exist_ok=True)
 random.seed(SEED)
 
@@ -341,15 +341,51 @@ for gi in range(grid_n):
         buildings.append((round(x, 3), round(y, 3), round(h, 1)))
         placed_xy.append((x, y))
 
+# fauna: a flock of code-generated birds circling above the bank by the town — the animated element, no assets
+FLOCK_N = 16; flock = []
+MAT_BIRD = material("bird", (0.12, 0.10, 0.09), 0.9)
+def bird(name, size=1.6):
+    """Two wing triangles hinged at the body, so they can flap by rotation."""
+    body = bpy.data.objects.new(name, None); body.empty_display_size = 0.2; COL["FLORA"].objects.link(body)
+    wings = []
+    for sign, wn in ((1, "L"), (-1, "R")):
+        me = bpy.data.meshes.new(f"{name}-{wn}"); bm = bmesh.new()
+        vs = [bm.verts.new(v) for v in ((0, 0.15, 0), (0, -0.15, 0), (sign * size, 0.05, 0))]
+        bm.faces.new(vs); bm.to_mesh(me); bm.free(); me.materials.append(MAT_BIRD)
+        w = bpy.data.objects.new(f"{name}-{wn}", me); w.parent = body; COL["FLORA"].objects.link(w); wings.append((sign, w))
+    return body, wings
+frng = random.Random(SEED + 7)
+FC = Vector((SX + 0.15, RPATH[0][1] + 0.05)); FZ0 = max(terrain_z(FC.x, FC.y), SEA) + 45.0
+for i in range(FLOCK_N):
+    body, wings = bird(f"bird-{i:02d}", size=frng.uniform(1.2, 1.9))
+    r = frng.uniform(35, 70); phase = frng.uniform(0, 6.283); w = frng.uniform(0.9, 1.3) * (1 if i % 5 else -1); zoff = frng.uniform(-8, 10); flap = frng.uniform(5.0, 7.5)
+    for f in range(1, 241, 3):
+        t = (f - 1) / 24.0; ang = phase + w * t * 0.35
+        pos = Vector((FC.x * MPU + r * math.cos(ang), FC.y * MPU + r * math.sin(ang), FZ0 + zoff + 3.0 * math.sin(t * 0.7 + phase)))
+        body.location = pos; body.rotation_euler = (0, 0, ang + (math.pi / 2 if w > 0 else -math.pi / 2))
+        body.keyframe_insert("location", frame=f); body.keyframe_insert("rotation_euler", frame=f)
+        for sign, wing in wings:
+            wing.rotation_euler = (0, sign * 0.6 * math.sin(t * flap * 6.283), 0); wing.keyframe_insert("rotation_euler", frame=f)
+    flock.append({"i": i, "radius": round(r, 1), "z": round(FZ0 + zoff, 1)})
+
 # lights + world: the lit rung (one low warm sun, sky colour, no volumetrics)
 sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 3.0; sun.angle = math.radians(4); sun.color = (1.0, 0.93, 0.82)
 so = bpy.data.objects.new("sun", sun); so.rotation_euler = (math.radians(58), 0, math.radians(-35)); COL["LIGHTS"].objects.link(so)
 wd = bpy.data.worlds.new("sky"); scene.world = wd; wd.use_nodes = True
 bg = wd.node_tree.nodes["Background"]; bg.inputs[0].default_value = (0.55, 0.68, 0.85, 1); bg.inputs[1].default_value = 0.8
+# quality rungs, named after the parent site's Flow ladder: lit / atmosphere / flowlike
+ee = scene.eevee
+if RUNG in ("atmosphere", "flowlike"):
+    ee.taa_render_samples = max(SAMPLES, 64); ee.use_raytracing = True; ee.ray_tracing_options.resolution_scale = "1"
+    ee.shadow_ray_count = 2; ee.shadow_step_count = 8; sun.angle = math.radians(12)
+    ee.volumetric_start = 1.0; ee.volumetric_end = 900.0; ee.volumetric_samples = 64; ee.volumetric_tile_size = "4"; ee.use_volumetric_shadows = True
+    vol = wd.node_tree.nodes.new("ShaderNodeVolumeScatter"); vol.inputs["Density"].default_value = 0.0025; vol.inputs["Color"].default_value = (0.85, 0.9, 1.0, 1)
+    wd.node_tree.links.new(vol.outputs["Volume"], wd.node_tree.nodes["World Output"].inputs["Volume"])
 
 # camera journey: along the river, above the far bank, looking ahead — 10 s = 240 frames
 FRAMES = 240
 cam = bpy.data.cameras.new("journey"); cam.lens = 26
+if RUNG == "flowlike": cam.dof.use_dof = True; cam.dof.aperture_fstop = 2.8
 co = bpy.data.objects.new("journey", cam); COL["CAMERA"].objects.link(co); scene.camera = co
 def path_point(t):
     lens = [(Vector(RPATH[i+1]) - Vector(RPATH[i])).length for i in range(len(RPATH) - 1)]
@@ -361,6 +397,16 @@ def path_point(t):
     return Vector(RPATH[-1])
 def cam_pose(t):
     p = path_point(t); ahead = path_point(min(1.0, t + 0.06))
+    if CAMERA == "high":     # the overview: high and slow, the whole world in frame, drifting downstream
+        u = 0.35 + 0.45 * t; q = path_point(u)
+        eye = Vector((q.x * MPU - 40, (q.y - 1.6) * MPU, 300 + 40 * (1 - t)))
+        look = Vector((*(path_point(min(1.0, u + 0.25)) * MPU), bed_height(min(1.0, u + 0.25)) + 20))
+        return eye, look
+    if CAMERA == "town":     # the flyover: an arc over the settlement from the river side to the hills
+        ang = math.radians(-120 + 150 * t); c = Vector((TX, TY)) * MPU
+        eye = Vector((c.x + 110 * math.cos(ang), c.y + 110 * math.sin(ang), terrain_z(TX, TY) + 45 + 25 * math.sin(math.pi * t)))
+        look = Vector((c.x, c.y, terrain_z(TX, TY) + 4))
+        return eye, look
     side = Vector((-0.25, -0.6))
     eye = Vector((*((p + side) * MPU), max(terrain_z(p.x + side.x, p.y + side.y), bed_height(t)) + 55))
     look = Vector((*(ahead * MPU), bed_height(min(1.0, t + 0.06)) + 6))
@@ -464,6 +510,7 @@ if HERO:
 for f in (range(1, FRAMES + 1, 8) if not (HERO or performer) else []):
     t = (f - 1) / (FRAMES - 1) * 0.92 + 0.04
     eye, look = cam_pose(t)
+    if RUNG == "flowlike": cam.dof.focus_distance = (look - eye).length; cam.dof.keyframe_insert("focus_distance", frame=f)
     co.location = eye
     co.rotation_euler = (look - eye).to_track_quat("-Z", "Y").to_euler()
     co.keyframe_insert("location", frame=f); co.keyframe_insert("rotation_euler", frame=f)
@@ -495,6 +542,7 @@ if shot:
               f"walked {performer['walked_m']} m along the spine; every sample inside the road width")
         check("performer on land", all(z > SEA + 0.5 for x, y, z, st, sy in walk_samples), f"ground from {min(w[2] for w in walk_samples)} to {max(w[2] for w in walk_samples)} m")
         check("beats inside the shot", all(b["at_s"] + b.get("seconds", 0) <= shot["duration_s"] for b in beats), f"{len(beats)} beats in {shot['duration_s']} s")
+check("fauna above ground", all(b["z"] > terrain_z(FC.x, FC.y) + 20 for b in flock), f"{len(flock)} birds circling {FLOCK_N and round(FZ0 - terrain_z(FC.x, FC.y))} m above the bank by the town")
 if settlement.get("characters"):
     check("character rights", not refused and all(c["rights_item_id"] for c in characters),
           f"{len(characters)} placed with a rights record; refused: {refused or 'none'}")
@@ -519,7 +567,7 @@ manifest = {
     "terrain": {"grid": [NX + 1, NY + 1], "z_min": round(min(v.co.z for v in tv), 2), "z_max": round(max(v.co.z for v in tv), 2),
                 "z_sum": round(sum(v.co.z for v in tv), 1)},
     "river_bed": [round(b, 2) for b in bed],
-    "buildings": buildings, "rejected_parcels": rejected, "trees": len(trees), "characters": characters, "refused_characters": refused, "camera": CAMERA, "performer": performer, "shot_refused": shot_refused, "patches": [p["patch_id"] for p in patches],
+    "buildings": buildings, "rejected_parcels": rejected, "trees": len(trees), "characters": characters, "refused_characters": refused, "camera": CAMERA, "rung": RUNG, "flock": flock, "performer": performer, "shot_refused": shot_refused, "patches": [p["patch_id"] for p in patches],
     "camera_frames": FRAMES, "objects": objects, "validation": checks,
 }
 mjson = json.dumps(manifest, sort_keys=True, separators=(",", ":"))
@@ -537,12 +585,13 @@ t0 = time.perf_counter()
 if STILL:
     f = int(STILL); scene.frame_start = scene.frame_end = f
     scene.render.image_settings.file_format = "PNG"
-    scene.render.filepath = os.path.join(OUT, f"still-seed{SEED}-f{f:03d}-")
+    PFX = f"still-{CAMERA}-" if CAMERA in ("high", "town", "journey") and JOURNEY is None and arg("--grid") else f"still-"
+    scene.render.filepath = os.path.join(OUT, f"{PFX}seed{SEED}-f{f:03d}-")
     bpy.ops.render.render(animation=True)
     # rename to a stable name
     for name in os.listdir(OUT):
-        if name.startswith(f"still-seed{SEED}-f{f:03d}-") and name.endswith(".png"):
-            os.replace(os.path.join(OUT, name), os.path.join(OUT, f"still-seed{SEED}-f{f:03d}.png"))
+        if name.startswith(f"{PFX}seed{SEED}-f{f:03d}-") and name.endswith(".png"):
+            os.replace(os.path.join(OUT, name), os.path.join(OUT, f"{PFX}seed{SEED}-f{f:03d}.png"))
 elif JOURNEY:
     # this Blender build has no FFMPEG output (image_settings.file_format enum lacks it);
     # render a PNG sequence and let run_demo.sh assemble the mp4 with the system ffmpeg

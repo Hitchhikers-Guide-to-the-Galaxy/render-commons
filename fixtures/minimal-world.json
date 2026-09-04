@@ -1,0 +1,100 @@
+{
+  "spec_version": "0.1.0-draft",
+  "world_id": "earth2-three-cell",
+  "title": "Earth 2.0 Three Cell Conformance World",
+  "units": "metres",
+  "coordinate_system": {
+    "kind": "local",
+    "crs": null,
+    "metres_per_unit": 100
+  },
+  "seed": 42,
+  "sea_level": 0,
+  "rights_manifest_id": "rights-earth2-fixture-001",
+  "cells": [
+    {
+      "id": "cell-highland",
+      "polygon": [[0, 1], [1, 0], [2, 1], [1, 2]],
+      "elevation_range": [260, 520],
+      "biome": "temperate-highland",
+      "moisture": 0.62,
+      "temperature": 0.38,
+      "fertility": 0.45,
+      "culture": null,
+      "population": 0,
+      "land_use": ["watershed", "protected"]
+    },
+    {
+      "id": "cell-valley",
+      "polygon": [[2, 1], [3, 0], [4, 1], [3, 2]],
+      "elevation_range": [80, 260],
+      "biome": "temperate-river-valley",
+      "moisture": 0.82,
+      "temperature": 0.55,
+      "fertility": 0.78,
+      "culture": "river-confederacy",
+      "population": 1200,
+      "land_use": ["mixed-forest", "agriculture", "settlement"]
+    },
+    {
+      "id": "cell-estuary",
+      "polygon": [[4, 1], [5, 0], [6, 1], [5, 2]],
+      "elevation_range": [0, 90],
+      "biome": "temperate-estuary",
+      "moisture": 0.94,
+      "temperature": 0.58,
+      "fertility": 0.71,
+      "culture": "river-confederacy",
+      "population": 400,
+      "land_use": ["wetland", "fishing", "port"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "river-01",
+      "from": "cell-highland",
+      "to": "cell-estuary",
+      "type": "river",
+      "path": [[1, 1], [3, 1], [5, 1]],
+      "flow": 0.64,
+      "width": 0.12,
+      "navigable": true
+    },
+    {
+      "id": "adjacency-01",
+      "from": "cell-highland",
+      "to": "cell-valley",
+      "type": "adjacency"
+    },
+    {
+      "id": "adjacency-02",
+      "from": "cell-valley",
+      "to": "cell-estuary",
+      "type": "adjacency"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source-01",
+      "type": "source",
+      "position": [1, 1],
+      "importance": 0.6,
+      "style": "spring"
+    },
+    {
+      "id": "settlement-river-01",
+      "type": "settlement",
+      "position": [3.2, 1.25],
+      "importance": 0.7,
+      "style": "timber-river-town"
+    },
+    {
+      "id": "port-01",
+      "type": "port",
+      "position": [5.25, 1.15],
+      "importance": 0.45,
+      "style": "wetland-landing"
+    }
+  ]
+}
+

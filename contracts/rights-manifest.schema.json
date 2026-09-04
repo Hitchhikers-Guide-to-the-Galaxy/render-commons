@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/spec/rights-manifest.schema.json",
+  "title": "Rights Manifest",
+  "type": "object",
+  "required": ["manifest_id", "world_namespace", "created_at", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_id": {"type": "string"},
+    "world_namespace": {"enum": ["earth2", "hitchhiker", "community", "private"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item_id", "source_uri", "rights_holder", "license_expression", "attribution", "permissions", "human_verified"],
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {"type": "string"},
+          "source_uri": {"type": "string"},
+          "rights_holder": {"type": "string", "minLength": 1},
+          "license_expression": {"type": "string", "minLength": 1},
+          "attribution": {"type": "string"},
+          "permissions": {
+            "type": "object",
+            "required": ["use", "modify", "public_distribution", "commercial_use", "machine_learning"],
+            "additionalProperties": false,
+            "properties": {
+              "use": {"type": "boolean"},
+              "modify": {"type": "boolean"},
+              "public_distribution": {"type": "boolean"},
+              "commercial_use": {"type": "boolean"},
+              "machine_learning": {"type": "boolean"}
+            }
+          },
+          "territories": {"type": "array", "items": {"type": "string"}},
+          "embargo_until": {"type": ["string", "null"], "format": "date-time"},
+          "human_verified": {"type": "boolean"},
+          "verified_by": {"type": ["string", "null"]},
+          "verified_at": {"type": ["string", "null"], "format": "date-time"},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}
+

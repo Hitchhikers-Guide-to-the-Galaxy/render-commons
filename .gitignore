@@ -1,0 +1,9 @@
+# renders, receipts and broker traffic live beside the code but are published on the wiki, not here
+out*/
+broker/
+__pycache__/
+*.blend
+# the Marvin cards are hitchhiker/* material; their rights record does not yet permit public distribution
+assets/marvin/
+# never keys
+*.sig

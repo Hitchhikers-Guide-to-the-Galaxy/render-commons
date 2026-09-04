@@ -1,0 +1,28 @@
+{
+  "manifest_id": "rights-earth2-fixture-001",
+  "world_namespace": "earth2",
+  "created_at": "2026-09-04T12:00:00Z",
+  "items": [
+    {
+      "item_id": "fixture-map-001",
+      "source_uri": "urn:agentic-blender:fixture:minimal-world",
+      "rights_holder": "TO BE CONFIRMED BY PROJECT OWNER",
+      "license_expression": "NOASSERTION",
+      "attribution": "Agentic Blender research fixture",
+      "permissions": {
+        "use": true,
+        "modify": true,
+        "public_distribution": false,
+        "commercial_use": false,
+        "machine_learning": false
+      },
+      "territories": [],
+      "embargo_until": null,
+      "human_verified": false,
+      "verified_by": null,
+      "verified_at": null,
+      "notes": "Deliberately blocked from public dispatch until a human selects and verifies a licence."
+    }
+  ]
+}
+

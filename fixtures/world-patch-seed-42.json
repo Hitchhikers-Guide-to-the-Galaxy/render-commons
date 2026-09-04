@@ -1,0 +1,36 @@
+{
+  "patch_id": "patch-river-settlement-001",
+  "world_id": "earth2-three-cell",
+  "parent_world_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "proposer": "fixture-agent",
+  "created_at": "2026-09-04T12:00:00Z",
+  "status": "accepted",
+  "accepted_by": "fixture-human-reviewer",
+  "accepted_at": "2026-09-04T12:42:00Z",
+  "seed": 42,
+  "rationale": "Exercise a settlement rule that respects the river floodplain.",
+  "rights_manifest_id": "rights-earth2-fixture-001",
+  "operations": [
+    {
+      "op": "add",
+      "target_kind": "node",
+      "target_id": "settlement-river-01",
+      "path": "/economy",
+      "value": ["river-trade", "timber"],
+      "rationale": "The settlement has navigable water and a forested hinterland."
+    },
+    {
+      "op": "add",
+      "target_kind": "node",
+      "target_id": "settlement-river-01",
+      "path": "/constraints",
+      "value": {
+        "preserve_floodplain": true,
+        "maximum_slope": 0.18,
+        "minimum_river_setback_metres": 18
+      },
+      "rationale": "Keep buildings outside the active floodplain while retaining river access."
+    }
+  ]
+}
+

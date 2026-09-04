@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/spec/render-receipt.schema.json",
+  "title": "Render Receipt",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "job_id",
+    "worker_id",
+    "worker_capability_hash",
+    "started_at",
+    "completed_at",
+    "wall_seconds",
+    "blender_version",
+    "outputs",
+    "validation",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "receipt_id": {
+      "type": "string"
+    },
+    "job_id": {
+      "type": "string"
+    },
+    "worker_id": {
+      "type": "string"
+    },
+    "worker_capability_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "wall_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "render_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "blender_version": {
+      "type": "string"
+    },
+    "energy": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "watt_hours",
+        "method"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "watt_hours": {
+          "type": "number",
+          "minimum": 0
+        },
+        "method": {
+          "enum": [
+            "measured",
+            "estimated",
+            "none"
+          ]
+        },
+        "meter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "hash",
+          "bytes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "check",
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "world_spec_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "engine": {
+      "type": "string"
+    },
+    "scene_manifest_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/spec/worker-capabilities.schema.json",
+  "title": "Render Worker Capabilities",
+  "type": "object",
+  "required": [
+    "worker_id",
+    "os",
+    "architecture",
+    "gpu",
+    "blender_versions",
+    "engines",
+    "limits",
+    "content_namespaces",
+    "outward_polling_only"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "worker_id": {
+      "type": "string"
+    },
+    "os": {
+      "enum": [
+        "macos",
+        "linux",
+        "windows"
+      ]
+    },
+    "architecture": {
+      "enum": [
+        "arm64",
+        "x86_64"
+      ]
+    },
+    "gpu": {
+      "type": "object",
+      "required": [
+        "vendor",
+        "model",
+        "memory_bytes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "vendor": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "memory_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "driver": {
+          "type": "string"
+        }
+      }
+    },
+    "blender_versions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engines": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "BLENDER_EEVEE",
+          "CYCLES"
+        ]
+      }
+    },
+    "limits": {
+      "type": "object",
+      "required": [
+        "max_width",
+        "max_height",
+        "max_job_seconds",
+        "max_download_bytes",
+        "max_cache_bytes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "max_width": {
+          "type": "integer",
+          "minimum": 64
+        },
+        "max_height": {
+          "type": "integer",
+          "minimum": 64
+        },
+        "max_job_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_download_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_cache_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "content_namespaces": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "earth2",
+          "hitchhiker",
+          "community",
+          "private"
+        ]
+      }
+    },
+    "energy_metering": {
+      "enum": [
+        "measured",
+        "estimated",
+        "none"
+      ]
+    },
+    "schedule": {
+      "type": "string"
+    },
+    "outward_polling_only": {
+      "const": true
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/spec/render-job.schema.json",
+  "title": "Render Job / Render Capsule Manifest",
+  "type": "object",
+  "required": [
+    "job_id",
+    "world_id",
+    "region",
+    "world_spec_hash",
+    "generator_commit",
+    "blender_version",
+    "engine",
+    "seed",
+    "camera_journey",
+    "frames",
+    "resolution",
+    "assets",
+    "rights_manifest_id",
+    "validation_profile",
+    "dispatch_class",
+    "expires_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "world_id": {
+      "type": "string"
+    },
+    "region": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "world_spec_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "generator_commit": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40,64}$"
+    },
+    "blender_version": {
+      "type": "string",
+      "pattern": "^5\\.2\\."
+    },
+    "engine": {
+      "const": "BLENDER_EEVEE"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "camera_journey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "frames": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        }
+      ],
+      "items": false
+    },
+    "resolution": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 64
+        },
+        {
+          "type": "integer",
+          "minimum": 64
+        }
+      ],
+      "items": false
+    },
+    "fps": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 24
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "hash",
+          "rights_item_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "hash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "rights_item_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rights_manifest_id": {
+      "type": "string"
+    },
+    "validation_profile": {
+      "type": "string"
+    },
+    "dispatch_class": {
+      "enum": [
+        "public",
+        "trusted",
+        "private"
+      ]
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

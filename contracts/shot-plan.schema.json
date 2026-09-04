@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/assets/draft-contracts/shot-plan.schema.json",
+  "title": "Shot Plan",
+  "description": "An agent's second kind of proposal beside a World Patch: a performer, a path, beats and a camera, against a versioned world. Drafted at rung 2 of the demo ladder.",
+  "type": "object",
+  "required": [
+    "shot_id",
+    "world_id",
+    "parent_world_hash",
+    "proposer",
+    "created_at",
+    "status",
+    "seed",
+    "performer",
+    "path",
+    "duration_s",
+    "fps",
+    "beats",
+    "camera",
+    "rights_manifest_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "shot_id": {
+      "type": "string"
+    },
+    "world_id": {
+      "type": "string"
+    },
+    "parent_world_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "proposer": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "accepted",
+        "rejected",
+        "expired"
+      ]
+    },
+    "accepted_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accepted_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "rights_manifest_id": {
+      "type": "string"
+    },
+    "performer": {
+      "type": "object",
+      "required": [
+        "asset",
+        "rights_item_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "asset": {
+          "type": "string"
+        },
+        "rights_item_id": {
+          "type": "string"
+        },
+        "height_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "path": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "road-spine",
+            "waypoints"
+          ]
+        },
+        "from_m": {
+          "type": "number"
+        },
+        "speed_mps": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "waypoints": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "items": false
+          }
+        }
+      }
+    },
+    "duration_s": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "fps": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "beats": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "at_s",
+          "do"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "at_s": {
+            "type": "number",
+            "minimum": 0
+          },
+          "do": {
+            "enum": [
+              "walk",
+              "stop",
+              "say",
+              "turn",
+              "gesture"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "gesture": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "required": [
+        "mode"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "follow",
+            "side",
+            "arc",
+            "fixed"
+          ]
+        },
+        "distance_m": {
+          "type": "number"
+        },
+        "height_m": {
+          "type": "number"
+        },
+        "lens_mm": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

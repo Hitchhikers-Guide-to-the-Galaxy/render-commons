@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/spec/world.schema.json",
+  "title": "Hitchhiker World",
+  "type": "object",
+  "required": ["spec_version", "world_id", "title", "units", "coordinate_system", "seed", "rights_manifest_id", "cells", "edges", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "spec_version": {"type": "string"},
+    "world_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "title": {"type": "string", "minLength": 1},
+    "units": {"const": "metres"},
+    "coordinate_system": {
+      "type": "object",
+      "required": ["kind", "metres_per_unit"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"enum": ["local", "geographic"]},
+        "crs": {"type": ["string", "null"]},
+        "metres_per_unit": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "seed": {"type": "integer", "minimum": 0},
+    "sea_level": {"type": "number", "default": 0},
+    "rights_manifest_id": {"type": "string", "minLength": 1},
+    "cells": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/cell"}
+    },
+    "edges": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/edge"}
+    },
+    "nodes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/node"}
+    }
+  },
+  "$defs": {
+    "point": {
+      "type": "array",
+      "prefixItems": [{"type": "number"}, {"type": "number"}],
+      "items": false
+    },
+    "cell": {
+      "type": "object",
+      "required": ["id", "polygon", "elevation_range", "biome", "moisture", "temperature", "fertility"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {"type": "string"},
+        "polygon": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/point"}},
+        "elevation_range": {
+          "type": "array",
+          "prefixItems": [{"type": "number"}, {"type": "number"}],
+          "items": false
+        },
+        "biome": {"type": "string"},
+        "moisture": {"type": "number", "minimum": 0, "maximum": 1},
+        "temperature": {"type": "number", "minimum": 0, "maximum": 1},
+        "fertility": {"type": "number", "minimum": 0, "maximum": 1},
+        "culture": {"type": ["string", "null"]},
+        "population": {"type": "integer", "minimum": 0},
+        "land_use": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "from", "to", "type"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {"type": "string"},
+        "from": {"type": "string"},
+        "to": {"type": "string"},
+        "type": {"enum": ["adjacency", "border", "river", "road", "coast"]},
+        "path": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+        "flow": {"type": "number", "minimum": 0},
+        "width": {"type": "number", "minimum": 0},
+        "navigable": {"type": "boolean"}
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "type", "position"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {"type": "string"},
+        "type": {"enum": ["settlement", "landmark", "source", "confluence", "port", "gate"]},
+        "position": {"$ref": "#/$defs/point"},
+        "importance": {"type": "number", "minimum": 0, "maximum": 1},
+        "style": {"type": "string"}
+      }
+    }
+  }
+}
+

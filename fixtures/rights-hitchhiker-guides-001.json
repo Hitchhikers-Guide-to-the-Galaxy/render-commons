@@ -1,0 +1,27 @@
+{
+  "manifest_id": "rights-hitchhiker-guides-001",
+  "world_namespace": "hitchhiker",
+  "created_at": "2026-09-04T20:00:00Z",
+  "items": [
+    {
+      "item_id": "hitchhiker-characters-and-storylines",
+      "source_uri": "urn:hitchhikers:characters-and-storylines",
+      "rights_holder": "The Hitchhikers project (David Bovill): rights in the characters and storylines of The Hitchhiker's Guide to the Galaxy for Guides and real-world guidance, as stated 2026-09-04",
+      "license_expression": "LicenseRef-Hitchhiker-Guides-2026",
+      "attribution": "The Hitchhiker's Guide to the Galaxy, Douglas Adams; Guides by the Hitchhikers project",
+      "permissions": {
+        "use": true,
+        "modify": true,
+        "public_distribution": false,
+        "commercial_use": false,
+        "machine_learning": false
+      },
+      "territories": [],
+      "embargo_until": null,
+      "human_verified": false,
+      "verified_by": null,
+      "verified_at": null,
+      "notes": "Drafted from the rights holder's statement of 2026-09-04 on the-rights-lane-is-not-verified. Scope: Guides and real-world guidance; the Blender animation and games for those Guides are inside it. The holder sets the permissions, names what is outside the scope, and ticks human_verified. Until then this record blocks public dispatch."
+    }
+  ]
+}

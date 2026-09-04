@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic.blender.anarchive.earth/spec/world-patch.schema.json",
+  "title": "World Patch",
+  "type": "object",
+  "required": ["patch_id", "world_id", "parent_world_hash", "proposer", "created_at", "status", "seed", "operations", "rights_manifest_id"],
+  "additionalProperties": false,
+  "properties": {
+    "patch_id": {"type": "string"},
+    "world_id": {"type": "string"},
+    "parent_world_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "proposer": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["proposed", "accepted", "rejected", "expired"]},
+    "accepted_by": {"type": ["string", "null"]},
+    "accepted_at": {"type": ["string", "null"], "format": "date-time"},
+    "seed": {"type": "integer", "minimum": 0},
+    "rationale": {"type": "string"},
+    "rights_manifest_id": {"type": "string"},
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["op", "target_kind", "target_id", "path", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "op": {"enum": ["add", "replace", "remove"]},
+          "target_kind": {"enum": ["world", "cell", "edge", "node", "ecology", "journey"]},
+          "target_id": {"type": "string"},
+          "path": {"type": "string", "pattern": "^/"},
+          "value": {},
+          "rationale": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}
+

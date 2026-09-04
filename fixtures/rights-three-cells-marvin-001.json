@@ -1,0 +1,47 @@
+{
+  "manifest_id": "rights-three-cells-marvin-001",
+  "world_namespace": "hitchhiker",
+  "created_at": "2026-09-04T22:20:00Z",
+  "items": [
+    {
+      "item_id": "fixture-map-001",
+      "source_uri": "urn:agentic-blender:fixture:minimal-world",
+      "rights_holder": "TO BE CONFIRMED BY PROJECT OWNER",
+      "license_expression": "NOASSERTION",
+      "attribution": "Agentic Blender research fixture",
+      "permissions": {
+        "use": true,
+        "modify": true,
+        "public_distribution": false,
+        "commercial_use": false,
+        "machine_learning": false
+      },
+      "territories": [],
+      "embargo_until": null,
+      "human_verified": false,
+      "verified_by": null,
+      "verified_at": null,
+      "notes": "Deliberately blocked from public dispatch until a human selects and verifies a licence."
+    },
+    {
+      "item_id": "marvin-puppet-card",
+      "source_uri": "urn:hitchhikers:htv-puppet:marvin-rig/4",
+      "rights_holder": "The Hitchhikers project (David Bovill): rights in the characters and storylines of The Hitchhiker's Guide to the Galaxy for Guides and real-world guidance, as stated 2026-09-04",
+      "license_expression": "LicenseRef-Hitchhiker-Guides-2026",
+      "attribution": "Marvin, the Hitchhikers puppet rig (htv-puppet/4), the Hitchhikers project",
+      "permissions": {
+        "use": true,
+        "modify": true,
+        "public_distribution": false,
+        "commercial_use": false,
+        "machine_learning": false
+      },
+      "territories": [],
+      "embargo_until": null,
+      "human_verified": false,
+      "verified_by": null,
+      "verified_at": null,
+      "notes": "A card composed from the puppet rig's layers (legs, body, head, eyes, brows, mouth, arms). Under the rights holder's statement of 2026-09-04, scope Guides and real-world guidance; human_verified stays false until David ticks it, so the capsule stays private."
+    }
+  ]
+}
